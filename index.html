@@ -1,619 +1,377 @@
 
-<!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maths Challenge Hub</title>
-    <meta name="description" content="Interactive maths challenges for primary school students.">
-    <link rel="icon" href="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=math%20symbols%20colorful%20icon&w=64&h=64&style=professional">
+    <meta name="description" content="Interactive real-life mathematics class tasks with working-out spaces, generated educational images and project activities.">
+    <meta property="og:title" content="Maths Mission Studio">
+    <meta property="og:description" content="Explore interactive maths activities through a juice bar, fitness studio, shopping and cinema.">
+    <meta property="og:image" content="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=colourful%20maths%20learning%20studio%20with%20students%20using%20calculators%20and%20working%20together&w=1200&h=700&style=professional">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=friendly%20colourful%20maths%20calculator%20icon&w=64&h=64&style=professional">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="/chat/cdn/animate.min.css" rel="stylesheet">
     <link href="/chat/cdn/all.min.css" rel="stylesheet">
     <script src="/chat/cdn/all.min.js" crossorigin></script>
-    <style>
-        @font-face {
-            font-family: 'Font Awesome 6 Free';
-            font-path: '/chat/webfonts/fa-regular-400';
-            src: url('/chat/webfonts/fa-regular-400.woff2') format('woff2'),
-                url('/chat/webfonts/fa-regular-400.ttf') format('truetype');
-        }
-        @font-face {
-            font-family: 'Font Awesome 6 Free';
-            font-path: '/chat/webfonts/fa-solid-900';
-            src: url('/chat/webfonts/fa-solid-900.woff2') format('woff2'),
-                url('/chat/webfonts/fa-solid-900.ttf') format('truetype');
-        }
-        @font-face {
-            font-family: 'Font Awesome 6 Brands';
-            font-path: '/chat/webfonts/fa-brands-400';
-            src: url('/chat/webfonts/fa-brands-400.woff2') format('woff2'),
-                url('/chat/webfonts/fa-brands-400.ttf') format('truetype');
-        }
-        /* Custom styles for specific cases */
-        .focus-ring:focus-visible {
-            outline: 3px solid #f59e0b;
-            outline-offset: 2px;
-        }
-        .transition-height {
-            transition: max-height 0.3s ease-in-out;
-        }
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen font-sans">
-    <div id="app" class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-        <!-- Header -->
-        <header class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-            <h1 class="text-3xl sm:text-4xl font-bold text-indigo-800 flex items-center gap-3">
-                <i class="fas fa-calculator text-indigo-600" aria-hidden="true"></i>
-                Maths Challenge Hub
-            </h1>
-            <div class="flex items-center gap-4">
-                <div class="text-right">
-                    <p class="text-sm text-gray-600">Score</p>
-                    <p id="scoreDisplay" class="text-2xl font-bold text-indigo-700">0</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-sm text-gray-600">Streak</p>
-                    <p id="streakDisplay" class="text-2xl font-bold text-orange-500">0</p>
-                </div>
-                <button id="resetBtn" class="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium" title="Reset all progress">
-                    <i class="fas fa-undo mr-1" aria-hidden="true"></i>Reset
-                </button>
-            </div>
-        </header>
-
-        <!-- Learner Name -->
-        <div class="mb-6 p-4 bg-white rounded-xl shadow-md">
-            <label for="learnerName" class="block text-sm font-medium text-gray-700 mb-1">Your Name (optional)</label>
-            <input type="text" id="learnerName" placeholder="Enter your name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" maxlength="50">
-        </div>
-
-        <!-- Topic Selection -->
-        <section id="topicSelection" class="mb-8">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Choose a Topic</h2>
-            <div id="topicGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Topics will be injected here -->
-            </div>
-        </section>
-
-        <!-- Challenge Area -->
-        <section id="challengeArea" class="hidden">
-            <div class="flex justify-between items-center mb-4">
-                <button id="backBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                    <i class="fas fa-arrow-left mr-2" aria-hidden="true"></i>Back to Topics
-                </button>
-                <h2 id="topicTitle" class="text-2xl font-semibold text-indigo-800"></h2>
-                <div class="text-sm text-gray-600">
-                    <span id="questionCounter">1/10</span>
-                </div>
-            </div>
-
-            <div id="questionCard" class="bg-white rounded-xl shadow-lg p-6 mb-6">
-                <div id="questionImageContainer" class="mb-4 hidden">
-                    <img id="questionImage" src="" alt="Question illustration" class="max-w-full h-auto rounded-lg">
-                </div>
-                <p id="questionText" class="text-xl text-gray-800 mb-4" aria-live="polite"></p>
-                <div id="answerArea" class="space-y-3"></div>
-                <div id="answerImageContainer" class="mt-4 hidden">
-                    <img id="answerImage" src="" alt="Answer illustration" class="max-w-full h-auto rounded-lg">
-                </div>
-                <div id="feedback" class="mt-4 text-lg font-medium" aria-live="polite"></div>
-                <button id="nextBtn" class="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors hidden">
-                    Next Question <i class="fas fa-arrow-right ml-2" aria-hidden="true"></i>
-                </button>
-            </div>
-        </section>
-    </div>
-
-    <!-- Completion Modal -->
-    <div id="completionModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white rounded-xl shadow-xl p-8 max-w-md mx-auto">
-            <h3 class="text-2xl font-bold text-indigo-800 mb-4">Topic Completed! 🎉</h3>
-            <p id="completionMessage" class="text-gray-700 mb-6"></p>
-            <div class="flex justify-end gap-4">
-                <button id="backToTopicsBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
-                    Back to Topics
-                </button>
-                <button id="nextTopicBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                    Next Topic <i class="fas fa-arrow-right ml-2" aria-hidden="true"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script src="/chat/cdn/papaparse.min.js"></script>
+    <title>Maths Mission Studio</title>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+    <header class="relative overflow-hidden bg-gradient-to-br from-indigo-950 via-indigo-700 to-teal-700 px-4 py-12 text-white">
+        <div class="mx-auto max-w-6xl text-center">
+            <span class="mb-4 inline-block rounded-full border border-white/40 bg-white/15 px-4 py-2 text-sm font-bold">11041NAT · CLASS PRACTICE</span>
+            <h1 class="text-4xl font-black tracking-tight sm:text-6xl">Maths Mission Studio</h1>
+            <p class="mx-auto mt-4 max-w-3xl text-lg text-indigo-50">Solve real-life maths problems, show your thinking and explore two creative class projects. These are learning tasks, not assessments.</p>
+            <img class="asset-image mx-auto mt-8 h-64 w-full max-w-4xl rounded-3xl border-4 border-white/30 object-cover shadow-2xl" src="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=diverse%20teenage%20students%20in%20a%20bright%20modern%20maths%20learning%20studio%20working%20with%20colourful%20cards%20calculators%20and%20real-life%20problem%20solving%20activities&w=1200&h=650&style=professional" data-fallback="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=colourful%20educational%20maths%20classroom%20with%20students%20and%20large%20numbers%20on%20a%20whiteboard&w=1200&h=650&style=professional" alt="Students working together in a colourful maths learning studio">
+        </div>
+    </header>
+
+    <nav class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur">
+        <div class="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-3">
+            <button class="nav-button rounded-full bg-indigo-700 px-4 py-2 font-bold text-white" data-target="practice">Practice</button>
+            <button class="nav-button rounded-full border-2 border-indigo-700 px-4 py-2 font-bold text-indigo-700" data-target="juice">Juice Bar</button>
+            <button class="nav-button rounded-full border-2 border-indigo-700 px-4 py-2 font-bold text-indigo-700" data-target="fitness">Fitness Studio</button>
+            <button class="nav-button rounded-full border-2 border-indigo-700 px-4 py-2 font-bold text-indigo-700" data-target="toolkit">Toolkit</button>
+        </div>
+    </nav>
+
+    <main class="mx-auto max-w-6xl px-4 py-8">
+        <section class="mb-8 rounded-3xl border border-slate-200 bg-white p-5 shadow-lg sm:p-8">
+            <div class="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
+                <div>
+                    <p class="font-bold uppercase tracking-wider text-teal-700">Your learning progress</p>
+                    <h2 class="mt-1 text-3xl font-black text-indigo-950"><span id="completedCount">0</span> activities checked</h2>
+                    <div class="mt-4 h-4 overflow-hidden rounded-full bg-slate-200"><div id="progressBar" class="h-full w-0 rounded-full bg-gradient-to-r from-indigo-600 to-teal-500 transition-all duration-500"></div></div>
+                    <p id="progressText" class="mt-2 text-sm text-slate-500">0% complete</p>
+                </div>
+                <button id="resetButton" class="rounded-xl bg-rose-600 px-5 py-3 font-bold text-white transition hover:bg-rose-700"><i class="fas fa-rotate-left mr-2" aria-hidden="true"></i>Reset</button>
+            </div>
+        </section>
+
+        <section id="practice" class="scroll-mt-24">
+            <div class="mb-5 flex items-center gap-4">
+                <img class="asset-image h-20 w-28 rounded-2xl object-cover shadow" src="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=large%20colourful%20BODMAS%20order%20of%20operations%20poster%20with%20brackets%20multiplication%20division%20addition%20and%20subtraction&w=700&h=450&style=professional" data-fallback="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=bright%20maths%20poster%20with%20large%20numbers%20and%20arithmetic%20symbols&w=700&h=450&style=professional" alt="Colourful order of operations maths poster">
+                <div><h2 class="text-3xl font-black text-indigo-950">Interactive practice</h2><p class="text-slate-600">Use the working-out boxes before checking your answer.</p></div>
+            </div>
+            <div id="practiceList" class="space-y-5"></div>
+        </section>
+
+        <section id="juice" class="mt-12 scroll-mt-24">
+            <div class="mb-5 flex items-center gap-4">
+                <img class="asset-image h-20 w-28 rounded-2xl object-cover shadow" src="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=cheerful%20student%20running%20a%20colourful%20juice%20bar%20with%20smoothies%20fruit%20menu%20and%20price%20cards&w=700&h=450&style=professional" data-fallback="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=bright%20fruit%20smoothie%20bar%20with%20colourful%20fruit%20and%20a%20calculator&w=700&h=450&style=professional" alt="Student planning a colourful juice bar">
+                <div><h2 class="text-3xl font-black text-indigo-950">The Juice Bar Project</h2><p class="text-slate-600">Plan prices, quantities and a customer order.</p></div>
+            </div>
+            <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
+                <img class="asset-image h-64 w-full object-cover" src="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=colourful%20juice%20bar%20counter%20with%20smoothies%20fruit%20menu%20and%20students%20planning%20an%20order&w=1200&h=550&style=professional" data-fallback="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=fresh%20fruit%20smoothie%20being%20prepared%20at%20a%20bright%20juice%20bar&w=1200&h=550&style=professional" alt="Colourful juice bar project scene">
+                <div class="space-y-6 p-6">
+                    <div class="rounded-2xl bg-amber-50 p-5"><h3 class="text-xl font-black text-amber-900">Scenario</h3><p class="mt-2">A smoothie costs $9.50. Protein costs an extra $2.00. A class orders 3 smoothies with protein.</p></div>
+                    <div class="task-card rounded-2xl border-l-4 border-teal-600 bg-slate-50 p-5" data-activity="7">
+                        <h3 class="text-xl font-black text-teal-800">Task 1: Find the order total</h3>
+                        <p class="mt-2">Calculate the price of one smoothie with protein, then multiply by 3.</p>
+                        <label class="mt-4 block font-bold" for="juiceWork1">Show your working</label>
+                        <textarea id="juiceWork1" class="working mt-2 min-h-32 w-full rounded-xl border-2 border-slate-200 bg-white p-3" placeholder="Write each step here..."></textarea>
+                        <label class="mt-4 block font-bold" for="juiceAnswer1">Your answer in dollars</label>
+                        <input id="juiceAnswer1" class="mt-2 w-full rounded-xl border-2 border-slate-200 p-3" type="number" step="0.01" placeholder="Enter the number only">
+                        <button class="check-button mt-4 rounded-xl bg-teal-700 px-5 py-3 font-bold text-white hover:bg-teal-800" data-answer="34.5" data-input="juiceAnswer1" data-feedback="juiceFeedback1">Check my answer</button>
+                        <button class="hint-button ml-2 mt-4 rounded-xl bg-amber-100 px-5 py-3 font-bold text-amber-900 hover:bg-amber-200" data-question="A smoothie costs $9.50, protein costs $2 and 3 smoothies are ordered. Give a short helpful hint without giving the final answer.">Ask for a hint</button>
+                        <p id="juiceFeedback1" class="mt-3 font-bold" aria-live="polite"></p>
+                    </div>
+                    <div class="task-card rounded-2xl border-l-4 border-teal-600 bg-slate-50 p-5" data-activity="8">
+                        <h3 class="text-xl font-black text-teal-800">Task 2: Change the order</h3>
+                        <p class="mt-2">Calculate the new total for 2 smoothies with protein and 1 smoothie without protein.</p>
+                        <label class="mt-4 block font-bold" for="juiceWork2">Show your working</label>
+                        <textarea id="juiceWork2" class="working mt-2 min-h-32 w-full rounded-xl border-2 border-slate-200 bg-white p-3" placeholder="Separate the costs before adding them..."></textarea>
+                        <label class="mt-4 block font-bold" for="juiceAnswer2">New total in dollars</label>
+                        <input id="juiceAnswer2" class="mt-2 w-full rounded-xl border-2 border-slate-200 p-3" type="number" step="0.01" placeholder="Enter the number only">
+                        <button class="check-button mt-4 rounded-xl bg-teal-700 px-5 py-3 font-bold text-white hover:bg-teal-800" data-answer="32.5" data-input="juiceAnswer2" data-feedback="juiceFeedback2">Check my answer</button>
+                        <p id="juiceFeedback2" class="mt-3 font-bold" aria-live="polite"></p>
+                    </div>
+                    <div><label class="block font-bold" for="juiceReflection">Project reflection</label><textarea id="juiceReflection" class="working mt-2 min-h-32 w-full rounded-xl border-2 border-slate-200 p-3" placeholder="Explain which calculation was easiest and why..."></textarea></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="fitness" class="mt-12 scroll-mt-24">
+            <div class="mb-5 flex items-center gap-4">
+                <img class="asset-image h-20 w-28 rounded-2xl object-cover shadow" src="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=welcoming%20fitness%20studio%20with%20a%20trainer%20and%20students%20planning%20a%20workout%20schedule%20with%20numbers%20and%20times&w=700&h=450&style=professional" data-fallback="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=modern%20fitness%20studio%20with%20trainer%20and%20students%20using%20a%20workout%20plan&w=700&h=450&style=professional" alt="Learners planning a fitness studio schedule">
+                <div><h2 class="text-3xl font-black text-indigo-950">The Fitness Studio Project</h2><p class="text-slate-600">Use time, multiplication and percentage calculations.</p></div>
+            </div>
+            <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-lg">
+                <img class="asset-image h-64 w-full object-cover" src="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=bright%20modern%20fitness%20studio%20with%20a%20friendly%20trainer%20helping%20two%20students%20and%20a%20large%20workout%20schedule&w=1200&h=550&style=professional" data-fallback="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=fitness%20class%20with%20exercise%20equipment%20and%20a%20trainer%20explaining%20a%20plan&w=1200&h=550&style=professional" alt="Fitness studio project scene">
+                <div class="space-y-6 p-6">
+                    <div class="rounded-2xl bg-indigo-50 p-5"><h3 class="text-xl font-black text-indigo-900">Scenario</h3><p class="mt-2">A fitness session lasts 45 minutes. A learner attends 4 sessions. A package costs $50 and has a 20% discount.</p></div>
+                    <div class="task-card rounded-2xl border-l-4 border-indigo-600 bg-slate-50 p-5" data-activity="9">
+                        <h3 class="text-xl font-black text-indigo-800">Task 1: Find the total exercise time</h3>
+                        <label class="mt-4 block font-bold" for="fitnessWork1">Show your working</label>
+                        <textarea id="fitnessWork1" class="working mt-2 min-h-32 w-full rounded-xl border-2 border-slate-200 bg-white p-3" placeholder="Use multiplication and include the unit..."></textarea>
+                        <label class="mt-4 block font-bold" for="fitnessAnswer1">Total minutes</label>
+                        <input id="fitnessAnswer1" class="mt-2 w-full rounded-xl border-2 border-slate-200 p-3" type="number" placeholder="Enter the number only">
+                        <button class="check-button mt-4 rounded-xl bg-indigo-700 px-5 py-3 font-bold text-white hover:bg-indigo-800" data-answer="180" data-input="fitnessAnswer1" data-feedback="fitnessFeedback1">Check my answer</button>
+                        <p id="fitnessFeedback1" class="mt-3 font-bold" aria-live="polite"></p>
+                    </div>
+                    <div class="task-card rounded-2xl border-l-4 border-indigo-600 bg-slate-50 p-5" data-activity="10">
+                        <h3 class="text-xl font-black text-indigo-800">Task 2: Find the discounted price</h3>
+                        <p class="mt-2">Find 20% of $50, then subtract the discount from the original price.</p>
+                        <label class="mt-4 block font-bold" for="fitnessWork2">Show your working</label>
+                        <textarea id="fitnessWork2" class="working mt-2 min-h-32 w-full rounded-xl border-2 border-slate-200 bg-white p-3" placeholder="Show the discount calculation and final subtraction..."></textarea>
+                        <label class="mt-4 block font-bold" for="fitnessAnswer2">Discounted price in dollars</label>
+                        <input id="fitnessAnswer2" class="mt-2 w-full rounded-xl border-2 border-slate-200 p-3" type="number" step="0.01" placeholder="Enter the number only">
+                        <button class="check-button mt-4 rounded-xl bg-indigo-700 px-5 py-3 font-bold text-white hover:bg-indigo-800" data-answer="40" data-input="fitnessAnswer2" data-feedback="fitnessFeedback2">Check my answer</button>
+                        <p id="fitnessFeedback2" class="mt-3 font-bold" aria-live="polite"></p>
+                    </div>
+                    <div><label class="block font-bold" for="fitnessReflection">Plan your own routine</label><textarea id="fitnessReflection" class="working mt-2 min-h-32 w-full rounded-xl border-2 border-slate-200 p-3" placeholder="Create a routine using at least three numbers..."></textarea></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="toolkit" class="mt-12 scroll-mt-24">
+            <div class="mb-5 flex items-center gap-4">
+                <img class="asset-image h-20 w-28 rounded-2xl object-cover shadow" src="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=calculator%20beside%20a%20lined%20maths%20notebook%20with%20clear%20percentage%20and%20decimal%20working&w=700&h=450&style=realistic" data-fallback="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=modern%20calculator%20and%20colourful%20maths%20notes%20on%20a%20desk&w=700&h=450&style=realistic" alt="Calculator and maths notebook">
+                <div><h2 class="text-3xl font-black text-indigo-950">Maths toolkit</h2><p class="text-slate-600">Helpful tools for checking your calculations.</p></div>
+            </div>
+            <div class="grid gap-5 md:grid-cols-2">
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
+                    <h3 class="text-xl font-black text-teal-800">Percentage calculator</h3>
+                    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                        <label class="font-bold">Amount<input id="amount" class="mt-2 w-full rounded-xl border-2 border-slate-200 p-3" type="number" placeholder="50"></label>
+                        <label class="font-bold">Percentage<input id="percentage" class="mt-2 w-full rounded-xl border-2 border-slate-200 p-3" type="number" placeholder="20"></label>
+                    </div>
+                    <button id="calculatePercentage" class="mt-4 rounded-xl bg-teal-700 px-5 py-3 font-bold text-white hover:bg-teal-800">Calculate</button>
+                    <p id="percentageResult" class="mt-4 rounded-xl bg-teal-50 p-4 font-bold text-teal-800" aria-live="polite">Your result will appear here.</p>
+                </div>
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
+                    <h3 class="text-xl font-black text-indigo-800">Useful reminders</h3>
+                    <ul class="mt-4 list-inside list-disc space-y-2 text-slate-600">
+                        <li>Estimate before calculating.</li>
+                        <li>Write units such as dollars or minutes.</li>
+                        <li>Keep decimal points lined up.</li>
+                        <li>Use brackets before multiplication and addition.</li>
+                        <li>Check whether your answer makes sense.</li>
+                    </ul>
+                    <div class="mt-5 flex flex-wrap gap-3">
+                        <button id="downloadButton" class="rounded-xl bg-indigo-700 px-4 py-3 font-bold text-white hover:bg-indigo-800">Download work</button>
+                        <button id="saveButton" class="rounded-xl bg-amber-500 px-4 py-3 font-bold text-amber-950 hover:bg-amber-400">Save progress CSV</button>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <img class="asset-image h-48 w-full rounded-2xl object-cover shadow" src="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=student%20using%20a%20calculator%20in%20a%20fresh%20food%20market&w=600&h=450&style=realistic" data-fallback="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=colourful%20supermarket%20fruit%20section%20with%20shopping%20list&w=600&h=450&style=realistic" alt="Shopping maths activity">
+                <img class="asset-image h-48 w-full rounded-2xl object-cover shadow" src="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=cinema%20counter%20with%20popcorn%20drink%20and%20a%20large%20maths%20price%20display&w=600&h=450&style=professional" data-fallback="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=cinema%20snack%20counter%20with%20clear%20price%20cards&w=600&h=450&style=professional" alt="Cinema budgeting activity">
+                <img class="asset-image h-48 w-full rounded-2xl object-cover shadow" src="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=student%20checking%20a%20digital%20temperature%20display%20on%20a%20frosty%20morning&w=600&h=450&style=realistic" data-fallback="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=winter%20weather%20temperature%20thermometer%20with%20negative%20numbers&w=600&h=450&style=realistic" alt="Negative numbers temperature activity">
+                <img class="asset-image h-48 w-full rounded-2xl object-cover shadow" src="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=students%20holding%20large%20colourful%20maths%20cards%20and%20working%20out%20answers%20together&w=600&h=450&style=professional" data-fallback="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=colourful%20maths%20teamwork%20classroom%20with%20calculators&w=600&h=450&style=professional" alt="Collaborative maths activity">
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-950 px-4 py-8 text-center text-slate-300">
+        <p class="font-bold text-white">Maths Mission Studio</p>
+        <p class="mt-2">Interactive class practice for NAT11041009.</p>
+        <p class="mt-1 text-sm">Generated images support the juice bar, fitness, shopping, cinema and maths content.</p>
+    </footer>
+
     <script>
-        // ===== DATA =====
-        const topics = [
-            {
-                id: 'addition',
-                title: 'Addition',
-                icon: 'fa-plus',
-                color: 'bg-blue-100 text-blue-700',
-                questions: [
-                    { question: 'What is 7 + 5?', type: 'numeric', answer: 12 },
-                    { question: 'What is 23 + 18?', type: 'numeric', answer: 41 },
-                    { question: 'What is 145 + 237?', type: 'numeric', answer: 382 },
-                    { question: 'What is 9 + 6?', type: 'numeric', answer: 15 },
-                    { question: 'What is 34 + 56?', type: 'numeric', answer: 90 },
-                    { question: 'What is 102 + 89?', type: 'numeric', answer: 191 },
-                    { question: 'What is 5 + 8?', type: 'numeric', answer: 13 },
-                    { question: 'What is 67 + 24?', type: 'numeric', answer: 91 },
-                    { question: 'What is 456 + 789?', type: 'numeric', answer: 1245 },
-                    { question: 'What is 12 + 34?', type: 'numeric', answer: 46 },
-                    { question: 'Which of these shows the correct working for 7 + 5?', type: 'multiple_choice', options: ['7 + 5 = 12', '7 + 5 = 11', '7 + 5 = 13', '7 + 5 = 10'], correctIndex: 0 },
-                    { question: 'Which of these shows the correct working for 23 + 18?', type: 'multiple_choice', options: ['20 + 10 = 30, 3 + 8 = 11, 30 + 11 = 41', '20 + 10 = 30, 3 + 8 = 11, 30 + 11 = 42', '20 + 10 = 30, 3 + 8 = 11, 30 + 11 = 40', '20 + 10 = 30, 3 + 8 = 11, 30 + 11 = 39'], correctIndex: 0 }
-                ]
-            },
-            {
-                id: 'subtraction',
-                title: 'Subtraction',
-                icon: 'fa-minus',
-                color: 'bg-green-100 text-green-700',
-                questions: [
-                    { question: 'What is 15 - 7?', type: 'numeric', answer: 8 },
-                    { question: 'What is 50 - 23?', type: 'numeric', answer: 27 },
-                    { question: 'What is 100 - 37?', type: 'numeric', answer: 63 },
-                    { question: 'What is 9 - 4?', type: 'numeric', answer: 5 },
-                    { question: 'What is 82 - 46?', type: 'numeric', answer: 36 },
-                    { question: 'What is 200 - 89?', type: 'numeric', answer: 111 },
-                    { question: 'What is 7 - 2?', type: 'numeric', answer: 5 },
-                    { question: 'What is 63 - 28?', type: 'numeric', answer: 35 },
-                    { question: 'What is 1000 - 456?', type: 'numeric', answer: 544 },
-                    { question: 'What is 34 - 19?', type: 'numeric', answer: 15 },
-                    { question: 'Which of these shows the correct working for 15 - 7?', type: 'multiple_choice', options: ['15 - 5 = 10, 10 - 2 = 8', '15 - 5 = 10, 10 - 2 = 9', '15 - 5 = 10, 10 - 2 = 7', '15 - 5 = 10, 10 - 2 = 6'], correctIndex: 0 },
-                    { question: 'Which of these shows the correct working for 50 - 23?', type: 'multiple_choice', options: ['50 - 20 = 30, 30 - 3 = 27', '50 - 20 = 30, 30 - 3 = 28', '50 - 20 = 30, 30 - 3 = 26', '50 - 20 = 30, 30 - 3 = 25'], correctIndex: 0 }
-                ]
-            },
-            {
-                id: 'multiplication',
-                title: 'Multiplication',
-                icon: 'fa-times',
-                color: 'bg-purple-100 text-purple-700',
-                questions: [
-                    { question: 'What is 6 × 7?', type: 'numeric', answer: 42 },
-                    { question: 'What is 8 × 9?', type: 'numeric', answer: 72 },
-                    { question: 'What is 12 × 12?', type: 'numeric', answer: 144 },
-                    { question: 'What is 5 × 5?', type: 'numeric', answer: 25 },
-                    { question: 'What is 7 × 8?', type: 'numeric', answer: 56 },
-                    { question: 'What is 9 × 6?', type: 'numeric', answer: 54 },
-                    { question: 'What is 3 × 4?', type: 'numeric', answer: 12 },
-                    { question: 'What is 11 × 11?', type: 'numeric', answer: 121 },
-                    { question: 'What is 15 × 3?', type: 'numeric', answer: 45 },
-                    { question: 'What is 2 × 10?', type: 'numeric', answer: 20 },
-                    { question: 'Which of these shows the correct working for 6 × 7?', type: 'multiple_choice', options: ['6 × 5 = 30, 6 × 2 = 12, 30 + 12 = 42', '6 × 5 = 30, 6 × 2 = 12, 30 + 12 = 43', '6 × 5 = 30, 6 × 2 = 12, 30 + 12 = 41', '6 × 5 = 30, 6 × 2 = 12, 30 + 12 = 40'], correctIndex: 0 },
-                    { question: 'Which of these shows the correct working for 8 × 9?', type: 'multiple_choice', options: ['8 × 10 = 80, 80 - 8 = 72', '8 × 10 = 80, 80 - 8 = 73', '8 × 10 = 80, 80 - 8 = 71', '8 × 10 = 80, 80 - 8 = 70'], correctIndex: 0 }
-                ]
-            },
-            {
-                id: 'division',
-                title: 'Division',
-                icon: 'fa-divide',
-                color: 'bg-yellow-100 text-yellow-700',
-                questions: [
-                    { question: 'What is 56 ÷ 7?', type: 'numeric', answer: 8 },
-                    { question: 'What is 81 ÷ 9?', type: 'numeric', answer: 9 },
-                    { question: 'What is 144 ÷ 12?', type: 'numeric', answer: 12 },
-                    { question: 'What is 25 ÷ 5?', type: 'numeric', answer: 5 },
-                    { question: 'What is 72 ÷ 8?', type: 'numeric', answer: 9 },
-                    { question: 'What is 54 ÷ 6?', type: 'numeric', answer: 9 },
-                    { question: 'What is 12 ÷ 3?', type: 'numeric', answer: 4 },
-                    { question: 'What is 121 ÷ 11?', type: 'numeric', answer: 11 },
-                    { question: 'What is 45 ÷ 5?', type: 'numeric', answer: 9 },
-                    { question: 'What is 20 ÷ 2?', type: 'numeric', answer: 10 },
-                    { question: 'Which of these shows the correct working for 56 ÷ 7?', type: 'multiple_choice', options: ['7 × 8 = 56, so 56 ÷ 7 = 8', '7 × 8 = 56, so 56 ÷ 7 = 9', '7 × 8 = 56, so 56 ÷ 7 = 7', '7 × 8 = 56, so 56 ÷ 7 = 6'], correctIndex: 0 },
-                    { question: 'Which of these shows the correct working for 81 ÷ 9?', type: 'multiple_choice', options: ['9 × 9 = 81, so 81 ÷ 9 = 9', '9 × 9 = 81, so 81 ÷ 9 = 8', '9 × 9 = 81, so 81 ÷ 9 = 10', '9 × 9 = 81, so 81 ÷ 9 = 11'], correctIndex: 0 }
-                ]
-            },
-            {
-                id: 'fractions',
-                title: 'Fractions',
-                icon: 'fa-percent',
-                color: 'bg-pink-100 text-pink-700',
-                questions: [
-                    { question: 'What is 1/2 + 1/4? (Give answer as a fraction in simplest form, e.g., 3/4)', type: 'text', answer: '3/4', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=pie%20chart%20showing%201%2F2%20and%201%2F4%20combined&w=300&h=200&style=realistic' },
-                    { question: 'What is 2/3 - 1/6? (Give answer as a fraction in simplest form)', type: 'text', answer: '1/2', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=two%20thirds%20minus%20one%20sixth%20visualized&w=300&h=200&style=realistic' },
-                    { question: 'What is 3/5 × 5/3? (Give answer as a fraction in simplest form)', type: 'text', answer: '1', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=multiplication%20of%20fractions%20visualized&w=300&h=200&style=realistic' },
-                    { question: 'What is 4/7 ÷ 2/7? (Give answer as a fraction in simplest form)', type: 'text', answer: '2', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=division%20of%20fractions%20visualized&w=300&h=200&style=realistic' },
-                    { question: 'What is 1/3 + 1/6? (Give answer as a fraction in simplest form)', type: 'text', answer: '1/2', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=pie%20chart%20showing%201%2F3%20and%201%2F6%20combined&w=300&h=200&style=realistic' },
-                    { question: 'What is 5/8 - 1/4? (Give answer as a fraction in simplest form)', type: 'text', answer: '3/8', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=five%20eighths%20minus%20one%20quarter%20visualized&w=300&h=200&style=realistic' },
-                    { question: 'What is 2/5 × 10? (Give answer as a fraction in simplest form)', type: 'text', answer: '4', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=two%20fifths%20multiplied%20by%2010%20visualized&w=300&h=200&style=realistic' },
-                    { question: 'What is 7/9 ÷ 7/9? (Give answer as a fraction in simplest form)', type: 'text', answer: '1', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=seven%20ninths%20divided%20by%20itself%20visualized&w=300&h=200&style=realistic' },
-                    { question: 'What is 1/2 × 1/2? (Give answer as a fraction in simplest form)', type: 'text', answer: '1/4', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=half%20multiplied%20by%20half%20visualized&w=300&h=200&style=realistic' },
-                    { question: 'What is 3/4 - 1/2? (Give answer as a fraction in simplest form)', type: 'text', answer: '1/4', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=three%20quarters%20minus%20one%20half%20visualized&w=300&h=200&style=realistic' },
-                    { question: 'Which of these shows the correct working for 1/2 + 1/4?', type: 'multiple_choice', options: ['1/2 = 2/4, so 2/4 + 1/4 = 3/4', '1/2 = 2/4, so 2/4 + 1/4 = 2/4', '1/2 = 2/4, so 2/4 + 1/4 = 1/4', '1/2 = 2/4, so 2/4 + 1/4 = 4/4'], correctIndex: 0, questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=pie%20chart%20showing%201%2F2%20and%201%2F4%20combined&w=300&h=200&style=realistic' },
-                    { question: 'Which of these shows the correct working for 2/3 - 1/6?', type: 'multiple_choice', options: ['2/3 = 4/6, so 4/6 - 1/6 = 3/6 = 1/2', '2/3 = 4/6, so 4/6 - 1/6 = 2/6 = 1/3', '2/3 = 4/6, so 4/6 - 1/6 = 5/6', '2/3 = 4/6, so 4/6 - 1/6 = 1/6'], correctIndex: 0, questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=two%20thirds%20minus%20one%20sixth%20visualized&w=300&h=200&style=realistic' }
-                ]
-            },
-            {
-                id: 'decimals',
-                title: 'Decimals',
-                icon: 'fa-circle',
-                color: 'bg-teal-100 text-teal-700',
-                questions: [
-                    { question: 'What is 0.5 + 0.25?', type: 'numeric', answer: 0.75 },
-                    { question: 'What is 1.2 - 0.8?', type: 'numeric', answer: 0.4 },
-                    { question: 'What is 0.3 × 0.4?', type: 'numeric', answer: 0.12 },
-                    { question: 'What is 0.6 ÷ 0.2?', type: 'numeric', answer: 3 },
-                    { question: 'What is 2.5 + 1.75?', type: 'numeric', answer: 4.25 },
-                    { question: 'What is 10.5 - 4.2?', type: 'numeric', answer: 6.3 },
-                    { question: 'What is 0.1 × 0.1?', type: 'numeric', answer: 0.01 },
-                    { question: 'What is 0.9 ÷ 0.3?', type: 'numeric', answer: 3 },
-                    { question: 'What is 3.14 + 2.86?', type: 'numeric', answer: 6 },
-                    { question: 'What is 7.5 - 2.5?', type: 'numeric', answer: 5 },
-                    { question: 'Which of these shows the correct working for 0.5 + 0.25?', type: 'multiple_choice', options: ['0.50 + 0.25 = 0.75', '0.50 + 0.25 = 0.70', '0.50 + 0.25 = 0.80', '0.50 + 0.25 = 0.65'], correctIndex: 0 },
-                    { question: 'Which of these shows the correct working for 1.2 - 0.8?', type: 'multiple_choice', options: ['1.2 - 0.8 = 0.4', '1.2 - 0.8 = 0.3', '1.2 - 0.8 = 0.5', '1.2 - 0.8 = 0.6'], correctIndex: 0 }
-                ]
-            }
+        const TOTAL_ACTIVITIES = 10;
+        const progress = new Set(JSON.parse(localStorage.getItem("mathsMissionProgress") || "[]"));
+        const practiceQuestions = [
+            { id: 1, text: "A supermarket shop costs $18.40 for fruit and $7.60 for vegetables. What is the total cost?", answer: 26, hint: "Add the dollars and cents. Line up the decimal points.", image: "https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=student%20using%20a%20calculator%20while%20shopping%20for%20fresh%20fruit%20and%20vegetables&w=800&h=450&style=realistic" },
+            { id: 2, text: "Calculate using the correct order of operations: 3 + 4 × (10 − 6).", answer: 19, hint: "Complete the brackets first, then multiply, then add.", image: "https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=colourful%20maths%20desk%20with%20brackets%20multiplication%20and%20addition%20cards&w=800&h=450&style=professional" },
+            { id: 3, text: "The temperature changes from 3°C to −2°C. How many degrees did it change?", answer: 5, hint: "Count from 3 down to 0, then from 0 down to −2.", image: "https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=student%20checking%20a%20digital%20temperature%20display%20on%20a%20frosty%20morning&w=800&h=450&style=realistic" },
+            { id: 4, text: "A cinema ticket costs $12. A large popcorn costs $6.50. What is the total for two tickets and one popcorn?", answer: 30.5, hint: "Use 2 × 12 + 6.50.", image: "https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=cinema%20counter%20with%20popcorn%20drink%20and%20clear%20price%20cards&w=800&h=450&style=professional" },
+            { id: 5, text: "Estimate the total cost of $4.80, $7.25 and $2.95 by rounding each amount to the nearest dollar.", answer: 15, hint: "$4.80 rounds to $5, $7.25 rounds to $7 and $2.95 rounds to $3.", image: "https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=student%20estimating%20shopping%20prices%20with%20rounding%20cards%20and%20calculator&w=800&h=450&style=realistic" },
+            { id: 6, text: "A calculator shows 0.75. Write this number as a percentage.", answer: 75, hint: "Multiply the decimal by 100.", image: "https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=calculator%20beside%20a%20maths%20notebook%20showing%20decimal%20to%20percentage%20working&w=800&h=450&style=realistic" }
         ];
 
-        // ===== STATE =====
-        let state = {
-            learnerName: '',
-            score: 0,
-            streak: 0,
-            answeredQuestions: {}, // { topicId: [true/false per question] }
-            completedTopics: [],
-            currentTopic: null,
-            currentQuestionIndex: 0
-        };
-
-        // ===== LOCAL STORAGE =====
-        const STORAGE_KEY = 'mathsChallengeHub';
-
-        function loadState() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    state = { ...state, ...parsed };
-                }
-            } catch (e) {
-                console.warn('Failed to load state from localStorage', e);
+        function imageFallback(image) {
+            if (image.dataset.fallbackUsed === "true") {
+                image.removeAttribute("src");
+                image.classList.add("bg-gradient-to-br", "from-indigo-100", "to-teal-100");
+                return;
             }
+            image.dataset.fallbackUsed = "true";
+            image.src = image.dataset.fallback || "https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=colourful%20educational%20maths%20illustration&w=800&h=450&style=professional";
         }
 
-        function saveState() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            } catch (e) {
-                console.warn('Failed to save state to localStorage', e);
-            }
-        }
-
-        function resetState() {
-            state = {
-                learnerName: state.learnerName, // keep name? maybe clear too
-                score: 0,
-                streak: 0,
-                answeredQuestions: {},
-                completedTopics: [],
-                currentTopic: null,
-                currentQuestionIndex: 0
-            };
-            saveState();
-            renderTopics();
-            updateScoreDisplay();
-            updateStreakDisplay();
-            // Also clear name input? We'll keep name but reset others
-            document.getElementById('learnerName').value = state.learnerName;
-        }
-
-        // ===== DOM ELEMENTS =====
-        const topicGrid = document.getElementById('topicGrid');
-        const topicSelection = document.getElementById('topicSelection');
-        const challengeArea = document.getElementById('challengeArea');
-        const topicTitle = document.getElementById('topicTitle');
-        const questionText = document.getElementById('questionText');
-        const answerArea = document.getElementById('answerArea');
-        const feedback = document.getElementById('feedback');
-        const nextBtn = document.getElementById('nextBtn');
-        const backBtn = document.getElementById('backBtn');
-        const questionCounter = document.getElementById('questionCounter');
-        const completionModal = document.getElementById('completionModal');
-        const completionMessage = document.getElementById('completionMessage');
-        const nextTopicBtn = document.getElementById('nextTopicBtn');
-        const backToTopicsBtn = document.getElementById('backToTopicsBtn');
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        const streakDisplay = document.getElementById('streakDisplay');
-        const learnerNameInput = document.getElementById('learnerName');
-        const resetBtn = document.getElementById('resetBtn');
-        const questionImageContainer = document.getElementById('questionImageContainer');
-        const questionImage = document.getElementById('questionImage');
-        const answerImageContainer = document.getElementById('answerImageContainer');
-        const answerImage = document.getElementById('answerImage');
-
-        // ===== RENDER TOPICS =====
-        function renderTopics() {
-            topicGrid.innerHTML = '';
-            topics.forEach(topic => {
-                const totalQuestions = topic.questions.length;
-                const answeredCount = (state.answeredQuestions[topic.id] || []).filter(Boolean).length;
-                const isCompleted = state.completedTopics.includes(topic.id);
-                const card = document.createElement('div');
-                card.className = `p-4 rounded-xl shadow-md cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${isCompleted ? 'bg-green-50 border-2 border-green-300' : 'bg-white'}`;
-                card.innerHTML = `
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="text-3xl ${topic.color} p-3 rounded-full"><i class="fas ${topic.icon}" aria-hidden="true"></i></span>
-                        ${isCompleted ? '<span class="text-green-600 text-sm font-semibold"><i class="fas fa-check-circle mr-1" aria-hidden="true"></i>Completed</span>' : ''}
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-800">${topic.title}</h3>
-                    <p class="text-sm text-gray-600 mt-1">${answeredCount}/${totalQuestions} answered</p>
-                    <div class="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-indigo-500 rounded-full transition-all duration-500" style="width: ${(answeredCount/totalQuestions)*100}%"></div>
-                    </div>
-                `;
-                card.addEventListener('click', () => startTopic(topic.id));
-                topicGrid.appendChild(card);
+        function attachImageHandlers() {
+            document.querySelectorAll(".asset-image").forEach(image => {
+                image.addEventListener("error", () => imageFallback(image));
             });
         }
 
-        // ===== START TOPIC =====
-        function startTopic(topicId) {
-            const topic = topics.find(t => t.id === topicId);
-            if (!topic) return;
-            state.currentTopic = topic;
-            state.currentQuestionIndex = 0;
-            // Ensure answeredQuestions array exists
-            if (!state.answeredQuestions[topicId]) {
-                state.answeredQuestions[topicId] = Array(topic.questions.length).fill(false);
-            }
-            topicSelection.classList.add('hidden');
-            challengeArea.classList.remove('hidden');
-            topicTitle.textContent = topic.title;
-            renderQuestion();
-            updateScoreDisplay();
-            updateStreakDisplay();
+        function createPractice() {
+            const list = document.getElementById("practiceList");
+            list.innerHTML = practiceQuestions.map(question => `
+                <article class="task-card rounded-3xl border-l-4 border-indigo-600 bg-white p-5 shadow-lg" data-activity="${question.id}">
+                    <div class="grid gap-5 md:grid-cols-[220px_1fr]">
+                        <img class="asset-image h-44 w-full rounded-2xl object-cover" src="${question.image}" data-fallback="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=colourful%20maths%20learning%20activity%20with%20students%20and%20calculators&w=800&h=450&style=professional" alt="Image linked to activity ${question.id}">
+                        <div>
+                            <span class="inline-block rounded-full bg-indigo-100 px-3 py-1 text-sm font-bold text-indigo-800">Activity ${question.id} of 10</span>
+                            <h3 class="mt-3 text-xl font-black text-indigo-950">${question.text}</h3>
+                            <label class="mt-4 block font-bold" for="working${question.id}">Show your working</label>
+                            <textarea id="working${question.id}" class="working mt-2 min-h-32 w-full rounded-xl border-2 border-slate-200 bg-white p-3" placeholder="Write your steps, draw a method or explain your thinking..."></textarea>
+                            <label class="mt-4 block font-bold" for="answer${question.id}">Your answer</label>
+                            <input id="answer${question.id}" class="mt-2 w-full rounded-xl border-2 border-slate-200 p-3" type="number" step="0.01" placeholder="Enter the number only">
+                            <details class="mt-3 rounded-xl bg-amber-50 p-3"><summary class="cursor-pointer font-bold text-amber-900">Show a hint</summary><p class="mt-2 text-amber-900">${question.hint}</p></details>
+                            <button class="check-button mt-4 rounded-xl bg-indigo-700 px-5 py-3 font-bold text-white hover:bg-indigo-800" data-answer="${question.answer}" data-input="answer${question.id}" data-feedback="feedback${question.id}">Check my answer</button>
+                            <p id="feedback${question.id}" class="mt-3 font-bold" aria-live="polite"></p>
+                        </div>
+                    </div>
+                </article>
+            `).join("");
         }
 
-        // ===== RENDER QUESTION =====
-        function renderQuestion() {
-            const topic = state.currentTopic;
-            const qIndex = state.currentQuestionIndex;
-            const question = topic.questions[qIndex];
-            questionText.textContent = question.question;
-            questionCounter.textContent = `${qIndex + 1}/${topic.questions.length}`;
-            feedback.textContent = '';
-            nextBtn.classList.add('hidden');
-            answerArea.innerHTML = '';
+        function updateProgress() {
+            const percent = Math.round(progress.size / TOTAL_ACTIVITIES * 100);
+            document.getElementById("completedCount").textContent = progress.size;
+            document.getElementById("progressText").textContent = `${percent}% complete`;
+            document.getElementById("progressBar").style.width = `${percent}%`;
+            localStorage.setItem("mathsMissionProgress", JSON.stringify([...progress]));
+        }
 
-            // Handle question image
-            if (question.questionImage) {
-                questionImage.src = question.questionImage;
-                questionImageContainer.classList.remove('hidden');
-            } else {
-                questionImageContainer.classList.add('hidden');
-            }
+        function saveWork() {
+            const values = {};
+            document.querySelectorAll("input, textarea").forEach(field => {
+                if (field.id) values[field.id] = field.value;
+            });
+            localStorage.setItem("mathsMissionWork", JSON.stringify(values));
+        }
 
-            // Handle answer image (initially hidden)
-            answerImageContainer.classList.add('hidden');
+        function restoreWork() {
+            const values = JSON.parse(localStorage.getItem("mathsMissionWork") || "{}");
+            Object.entries(values).forEach(([id, value]) => {
+                const field = document.getElementById(id);
+                if (field) field.value = value;
+            });
+        }
 
-            if (question.type === 'numeric') {
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.step = 'any';
-                input.className = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors';
-                input.placeholder = 'Enter your answer';
-                input.setAttribute('aria-label', 'Your answer');
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        checkAnswer(input.value);
-                    }
-                });
-                answerArea.appendChild(input);
+        function checkAnswer(button) {
+            const input = document.getElementById(button.dataset.input);
+            const feedback = document.getElementById(button.dataset.feedback);
+            const card = button.closest("[data-activity]");
+            const value = Number(String(input.value).replace(/[$,%\s]/g, ""));
+
+            if (!Number.isFinite(value)) {
+                feedback.textContent = "Please enter an answer before checking.";
+                feedback.className = "mt-3 font-bold text-rose-700";
                 input.focus();
-            } else if (question.type === 'text') {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors';
-                input.placeholder = 'Enter your answer (e.g., 3/4)';
-                input.setAttribute('aria-label', 'Your answer');
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        checkAnswer(input.value);
-                    }
-                });
-                answerArea.appendChild(input);
-                input.focus();
-            } else if (question.type === 'multiple_choice') {
-                // Create buttons for each option
-                question.options.forEach((option, idx) => {
-                    const btn = document.createElement('button');
-                    btn.className = 'w-full text-left px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500';
-                    btn.textContent = option;
-                    btn.setAttribute('data-index', idx);
-                    btn.addEventListener('click', () => checkAnswer(idx));
-                    answerArea.appendChild(btn);
-                });
-            }
-        }
-
-        // ===== CHECK ANSWER =====
-        function checkAnswer(userAnswer) {
-            const topic = state.currentTopic;
-            const qIndex = state.currentQuestionIndex;
-            const question = topic.questions[qIndex];
-            let isCorrect = false;
-
-            if (question.type === 'numeric') {
-                const num = parseFloat(userAnswer);
-                if (!isNaN(num)) {
-                    isCorrect = Math.abs(num - question.answer) < 0.001;
-                }
-            } else if (question.type === 'text') {
-                // For text answers, normalize (lowercase, trim, remove spaces)
-                const normalize = (str) => str.toLowerCase().replace(/\s+/g, '').replace(/\/+/g, '/');
-                isCorrect = normalize(userAnswer) === normalize(question.answer);
-            } else if (question.type === 'multiple_choice') {
-                isCorrect = userAnswer === question.correctIndex;
+                return;
             }
 
-            // Update state
-            state.answeredQuestions[topic.id][qIndex] = true;
-            if (isCorrect) {
-                state.score += 10;
-                state.streak += 1;
-                feedback.textContent = '✅ Correct! Well done!';
-                feedback.className = 'mt-4 text-lg font-medium text-green-600';
+            const correct = Math.abs(value - Number(button.dataset.answer)) < 0.001;
+            const activity = Number(card.dataset.activity);
+
+            if (correct) {
+                feedback.textContent = "Correct. Check that your working clearly explains your method.";
+                feedback.className = "mt-3 font-bold text-green-700";
+                progress.add(activity);
+                button.textContent = "Checked";
             } else {
-                state.streak = 0;
-                let correctAnswerText = '';
-                if (question.type === 'multiple_choice') {
-                    correctAnswerText = question.options[question.correctIndex];
-                } else {
-                    correctAnswerText = question.answer;
-                }
-                feedback.textContent = `❌ Not quite. The correct answer is ${correctAnswerText}.`;
-                feedback.className = 'mt-4 text-lg font-medium text-red-500';
+                feedback.textContent = "Not quite yet. Use the working space, reread the question and try again.";
+                feedback.className = "mt-3 font-bold text-rose-700";
+                progress.delete(activity);
+                button.textContent = "Try again";
             }
 
-            // Show answer image if available
-            if (question.answerImage) {
-                answerImage.src = question.answerImage;
-                answerImageContainer.classList.remove('hidden');
-            }
+            updateProgress();
+            saveWork();
+        }
 
-            // Check if topic completed
-            const allAnswered = state.answeredQuestions[topic.id].every(Boolean);
-            if (allAnswered && !state.completedTopics.includes(topic.id)) {
-                state.completedTopics.push(topic.id);
-                state.score += 50; // bonus
-                // Show completion modal after a short delay
-                setTimeout(() => {
-                    showCompletionModal();
-                }, 500);
-            }
-
-            // Update UI
-            updateScoreDisplay();
-            updateStreakDisplay();
-            saveState();
-
-            // Disable input/buttons and show next button
-            const inputs = answerArea.querySelectorAll('input');
-            inputs.forEach(inp => inp.disabled = true);
-            const buttons = answerArea.querySelectorAll('button');
-            buttons.forEach(btn => btn.disabled = true);
-            nextBtn.classList.remove('hidden');
-
-            // If last question, change button text
-            if (qIndex === topic.questions.length - 1) {
-                nextBtn.innerHTML = 'Finish Topic <i class="fas fa-check ml-2" aria-hidden="true"></i>';
-            } else {
-                nextBtn.innerHTML = 'Next Question <i class="fas fa-arrow-right ml-2" aria-hidden="true"></i>';
+        async function requestHint(button) {
+            button.disabled = true;
+            button.textContent = "Thinking...";
+            try {
+                if (typeof window.call_llm !== "function") throw new Error("Hint service unavailable");
+                const result = await window.call_llm(
+                    "You are a supportive maths tutor. Give one short scaffolded hint. Do not give the final answer. Return only JSON with a hint field.",
+                    [{ role: "user", content: button.dataset.question }],
+                    [{ hint: "A short hint without the final answer." }]
+                );
+                const hint = result && result.hint ? result.hint : "Find the cost of one item first, then multiply by the number of items.";
+                showHint(button, hint);
+            } catch (error) {
+                showHint(button, "Break the problem into smaller steps and write an expression first.");
+            } finally {
+                button.disabled = false;
+                button.textContent = "Ask for a hint";
             }
         }
 
-        // ===== NEXT QUESTION =====
-        function nextQuestion() {
-            const topic = state.currentTopic;
-            if (state.currentQuestionIndex < topic.questions.length - 1) {
-                state.currentQuestionIndex++;
-                renderQuestion();
-            } else {
-                // Topic finished
-                backToTopics();
+        function showHint(button, text) {
+            const output = document.createElement("p");
+            output.className = "mt-3 rounded-xl bg-amber-50 p-3 font-bold text-amber-900";
+            output.textContent = `Hint: ${text}`;
+            button.parentElement.appendChild(output);
+        }
+
+        document.addEventListener("click", event => {
+            const nav = event.target.closest(".nav-button");
+            if (nav) {
+                const target = document.getElementById(nav.dataset.target);
+                if (target) target.scrollIntoView({ behavior: "smooth" });
             }
-        }
 
-        // ===== BACK TO TOPICS =====
-        function backToTopics() {
-            state.currentTopic = null;
-            state.currentQuestionIndex = 0;
-            challengeArea.classList.add('hidden');
-            topicSelection.classList.remove('hidden');
-            renderTopics();
-        }
+            const check = event.target.closest(".check-button");
+            if (check) checkAnswer(check);
 
-        // ===== COMPLETION MODAL =====
-        function showCompletionModal() {
-            const topic = state.currentTopic;
-            const totalQuestions = topic.questions.length;
-            const correctCount = state.answeredQuestions[topic.id].filter(Boolean).length;
-            completionMessage.textContent = `You answered ${correctCount} out of ${totalQuestions} correctly! You earned a 50-point bonus.`;
-            completionModal.classList.remove('hidden');
-            completionModal.classList.add('flex');
-        }
-
-        function hideCompletionModal() {
-            completionModal.classList.add('hidden');
-            completionModal.classList.remove('flex');
-        }
-
-        // ===== UPDATE DISPLAYS =====
-        function updateScoreDisplay() {
-            scoreDisplay.textContent = state.score;
-        }
-
-        function updateStreakDisplay() {
-            streakDisplay.textContent = state.streak;
-        }
-
-        // ===== SAVE TO CSV (if available) =====
-        function saveProgress() {
-            if (typeof window.save_data_to_csv === 'function') {
-                const data = topics.map(topic => {
-                    const answered = state.answeredQuestions[topic.id] || [];
-                    const correct = answered.filter(Boolean).length;
-                    return {
-                        learner: state.learnerName,
-                        topic: topic.title,
-                        questionsAnswered: answered.length,
-                        correctAnswers: correct,
-                        completed: state.completedTopics.includes(topic.id)
-                    };
-                });
-                window.save_data_to_csv('maths_progress.csv', data);
-            }
-        }
-
-        // ===== EVENT LISTENERS =====
-        nextBtn.addEventListener('click', nextQuestion);
-        backBtn.addEventListener('click', backToTopics);
-        nextTopicBtn.addEventListener('click', () => {
-            hideCompletionModal();
-            // Find next incomplete topic
-            const nextTopic = topics.find(t => !state.completedTopics.includes(t.id));
-            if (nextTopic) {
-                startTopic(nextTopic.id);
-            } else {
-                backToTopics();
-            }
-        });
-        backToTopicsBtn.addEventListener('click', () => {
-            hideCompletionModal();
-            backToTopics();
-        });
-        resetBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to reset all progress?')) {
-                resetState();
-            }
-        });
-        learnerNameInput.addEventListener('input', (e) => {
-            state.learnerName = e.target.value;
-            saveState();
+            const hint = event.target.closest(".hint-button");
+            if (hint) requestHint(hint);
         });
 
-        // ===== INIT =====
-        function init() {
-            loadState();
-            document.getElementById('learnerName').value = state.learnerName;
-            renderTopics();
-            updateScoreDisplay();
-            updateStreakDisplay();
-            // Save initial state
-            saveState();
-        }
+        document.addEventListener("input", saveWork);
 
-        document.addEventListener('DOMContentLoaded', init);
+        document.getElementById("calculatePercentage").addEventListener("click", () => {
+            const amount = Number(document.getElementById("amount").value);
+            const percentage = Number(document.getElementById("percentage").value);
+            const result = document.getElementById("percentageResult");
+
+            if (!Number.isFinite(amount) || !Number.isFinite(percentage)) {
+                result.textContent = "Enter both an amount and a percentage.";
+                return;
+            }
+
+            result.textContent = `${percentage}% of $${amount.toFixed(2)} is $${(amount * percentage / 100).toFixed(2)}.`;
+        });
+
+        document.getElementById("resetButton").addEventListener("click", () => {
+            if (!window.confirm("Reset all saved answers and progress?")) return;
+            localStorage.removeItem("mathsMissionProgress");
+            localStorage.removeItem("mathsMissionWork");
+            window.location.reload();
+        });
+
+        document.getElementById("downloadButton").addEventListener("click", () => {
+            const rows = [["Field", "Learner work"]];
+            document.querySelectorAll("input, textarea").forEach(field => {
+                if (field.id && field.value.trim()) rows.push([field.id, field.value.trim()]);
+            });
+
+            const csv = typeof Papa !== "undefined" ? Papa.unparse(rows) : rows.map(row => row.join(",")).join("\n");
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "maths-mission-working.csv";
+            link.click();
+            URL.revokeObjectURL(url);
+        });
+
+        document.getElementById("saveButton").addEventListener("click", () => {
+            const data = [{
+                completedActivities: progress.size,
+                completionPercentage: Math.round(progress.size / TOTAL_ACTIVITIES * 100),
+                savedAt: new Date().toISOString()
+            }];
+
+            if (typeof window.save_data_to_csv === "function") {
+                window.save_data_to_csv("maths-mission-progress.csv", data);
+            } else {
+                alert("Progress saving is unavailable in this preview.");
+            }
+        });
+
+        createPractice();
+        attachImageHandlers();
+        restoreWork();
+        updateProgress();
     </script>
 </body>
 </html>
-        
