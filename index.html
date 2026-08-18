@@ -1,0 +1,619 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maths Challenge Hub</title>
+    <meta name="description" content="Interactive maths challenges for primary school students.">
+    <link rel="icon" href="https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=math%20symbols%20colorful%20icon&w=64&h=64&style=professional">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="/chat/cdn/animate.min.css" rel="stylesheet">
+    <link href="/chat/cdn/all.min.css" rel="stylesheet">
+    <script src="/chat/cdn/all.min.js" crossorigin></script>
+    <style>
+        @font-face {
+            font-family: 'Font Awesome 6 Free';
+            font-path: '/chat/webfonts/fa-regular-400';
+            src: url('/chat/webfonts/fa-regular-400.woff2') format('woff2'),
+                url('/chat/webfonts/fa-regular-400.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'Font Awesome 6 Free';
+            font-path: '/chat/webfonts/fa-solid-900';
+            src: url('/chat/webfonts/fa-solid-900.woff2') format('woff2'),
+                url('/chat/webfonts/fa-solid-900.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'Font Awesome 6 Brands';
+            font-path: '/chat/webfonts/fa-brands-400';
+            src: url('/chat/webfonts/fa-brands-400.woff2') format('woff2'),
+                url('/chat/webfonts/fa-brands-400.ttf') format('truetype');
+        }
+        /* Custom styles for specific cases */
+        .focus-ring:focus-visible {
+            outline: 3px solid #f59e0b;
+            outline-offset: 2px;
+        }
+        .transition-height {
+            transition: max-height 0.3s ease-in-out;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen font-sans">
+    <div id="app" class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Header -->
+        <header class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+            <h1 class="text-3xl sm:text-4xl font-bold text-indigo-800 flex items-center gap-3">
+                <i class="fas fa-calculator text-indigo-600" aria-hidden="true"></i>
+                Maths Challenge Hub
+            </h1>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-sm text-gray-600">Score</p>
+                    <p id="scoreDisplay" class="text-2xl font-bold text-indigo-700">0</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600">Streak</p>
+                    <p id="streakDisplay" class="text-2xl font-bold text-orange-500">0</p>
+                </div>
+                <button id="resetBtn" class="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors text-sm font-medium" title="Reset all progress">
+                    <i class="fas fa-undo mr-1" aria-hidden="true"></i>Reset
+                </button>
+            </div>
+        </header>
+
+        <!-- Learner Name -->
+        <div class="mb-6 p-4 bg-white rounded-xl shadow-md">
+            <label for="learnerName" class="block text-sm font-medium text-gray-700 mb-1">Your Name (optional)</label>
+            <input type="text" id="learnerName" placeholder="Enter your name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" maxlength="50">
+        </div>
+
+        <!-- Topic Selection -->
+        <section id="topicSelection" class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Choose a Topic</h2>
+            <div id="topicGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Topics will be injected here -->
+            </div>
+        </section>
+
+        <!-- Challenge Area -->
+        <section id="challengeArea" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <button id="backBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    <i class="fas fa-arrow-left mr-2" aria-hidden="true"></i>Back to Topics
+                </button>
+                <h2 id="topicTitle" class="text-2xl font-semibold text-indigo-800"></h2>
+                <div class="text-sm text-gray-600">
+                    <span id="questionCounter">1/10</span>
+                </div>
+            </div>
+
+            <div id="questionCard" class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <div id="questionImageContainer" class="mb-4 hidden">
+                    <img id="questionImage" src="" alt="Question illustration" class="max-w-full h-auto rounded-lg">
+                </div>
+                <p id="questionText" class="text-xl text-gray-800 mb-4" aria-live="polite"></p>
+                <div id="answerArea" class="space-y-3"></div>
+                <div id="answerImageContainer" class="mt-4 hidden">
+                    <img id="answerImage" src="" alt="Answer illustration" class="max-w-full h-auto rounded-lg">
+                </div>
+                <div id="feedback" class="mt-4 text-lg font-medium" aria-live="polite"></div>
+                <button id="nextBtn" class="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors hidden">
+                    Next Question <i class="fas fa-arrow-right ml-2" aria-hidden="true"></i>
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Completion Modal -->
+    <div id="completionModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white rounded-xl shadow-xl p-8 max-w-md mx-auto">
+            <h3 class="text-2xl font-bold text-indigo-800 mb-4">Topic Completed! 🎉</h3>
+            <p id="completionMessage" class="text-gray-700 mb-6"></p>
+            <div class="flex justify-end gap-4">
+                <button id="backToTopicsBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    Back to Topics
+                </button>
+                <button id="nextTopicBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                    Next Topic <i class="fas fa-arrow-right ml-2" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/chat/cdn/papaparse.min.js"></script>
+    <script>
+        // ===== DATA =====
+        const topics = [
+            {
+                id: 'addition',
+                title: 'Addition',
+                icon: 'fa-plus',
+                color: 'bg-blue-100 text-blue-700',
+                questions: [
+                    { question: 'What is 7 + 5?', type: 'numeric', answer: 12 },
+                    { question: 'What is 23 + 18?', type: 'numeric', answer: 41 },
+                    { question: 'What is 145 + 237?', type: 'numeric', answer: 382 },
+                    { question: 'What is 9 + 6?', type: 'numeric', answer: 15 },
+                    { question: 'What is 34 + 56?', type: 'numeric', answer: 90 },
+                    { question: 'What is 102 + 89?', type: 'numeric', answer: 191 },
+                    { question: 'What is 5 + 8?', type: 'numeric', answer: 13 },
+                    { question: 'What is 67 + 24?', type: 'numeric', answer: 91 },
+                    { question: 'What is 456 + 789?', type: 'numeric', answer: 1245 },
+                    { question: 'What is 12 + 34?', type: 'numeric', answer: 46 },
+                    { question: 'Which of these shows the correct working for 7 + 5?', type: 'multiple_choice', options: ['7 + 5 = 12', '7 + 5 = 11', '7 + 5 = 13', '7 + 5 = 10'], correctIndex: 0 },
+                    { question: 'Which of these shows the correct working for 23 + 18?', type: 'multiple_choice', options: ['20 + 10 = 30, 3 + 8 = 11, 30 + 11 = 41', '20 + 10 = 30, 3 + 8 = 11, 30 + 11 = 42', '20 + 10 = 30, 3 + 8 = 11, 30 + 11 = 40', '20 + 10 = 30, 3 + 8 = 11, 30 + 11 = 39'], correctIndex: 0 }
+                ]
+            },
+            {
+                id: 'subtraction',
+                title: 'Subtraction',
+                icon: 'fa-minus',
+                color: 'bg-green-100 text-green-700',
+                questions: [
+                    { question: 'What is 15 - 7?', type: 'numeric', answer: 8 },
+                    { question: 'What is 50 - 23?', type: 'numeric', answer: 27 },
+                    { question: 'What is 100 - 37?', type: 'numeric', answer: 63 },
+                    { question: 'What is 9 - 4?', type: 'numeric', answer: 5 },
+                    { question: 'What is 82 - 46?', type: 'numeric', answer: 36 },
+                    { question: 'What is 200 - 89?', type: 'numeric', answer: 111 },
+                    { question: 'What is 7 - 2?', type: 'numeric', answer: 5 },
+                    { question: 'What is 63 - 28?', type: 'numeric', answer: 35 },
+                    { question: 'What is 1000 - 456?', type: 'numeric', answer: 544 },
+                    { question: 'What is 34 - 19?', type: 'numeric', answer: 15 },
+                    { question: 'Which of these shows the correct working for 15 - 7?', type: 'multiple_choice', options: ['15 - 5 = 10, 10 - 2 = 8', '15 - 5 = 10, 10 - 2 = 9', '15 - 5 = 10, 10 - 2 = 7', '15 - 5 = 10, 10 - 2 = 6'], correctIndex: 0 },
+                    { question: 'Which of these shows the correct working for 50 - 23?', type: 'multiple_choice', options: ['50 - 20 = 30, 30 - 3 = 27', '50 - 20 = 30, 30 - 3 = 28', '50 - 20 = 30, 30 - 3 = 26', '50 - 20 = 30, 30 - 3 = 25'], correctIndex: 0 }
+                ]
+            },
+            {
+                id: 'multiplication',
+                title: 'Multiplication',
+                icon: 'fa-times',
+                color: 'bg-purple-100 text-purple-700',
+                questions: [
+                    { question: 'What is 6 × 7?', type: 'numeric', answer: 42 },
+                    { question: 'What is 8 × 9?', type: 'numeric', answer: 72 },
+                    { question: 'What is 12 × 12?', type: 'numeric', answer: 144 },
+                    { question: 'What is 5 × 5?', type: 'numeric', answer: 25 },
+                    { question: 'What is 7 × 8?', type: 'numeric', answer: 56 },
+                    { question: 'What is 9 × 6?', type: 'numeric', answer: 54 },
+                    { question: 'What is 3 × 4?', type: 'numeric', answer: 12 },
+                    { question: 'What is 11 × 11?', type: 'numeric', answer: 121 },
+                    { question: 'What is 15 × 3?', type: 'numeric', answer: 45 },
+                    { question: 'What is 2 × 10?', type: 'numeric', answer: 20 },
+                    { question: 'Which of these shows the correct working for 6 × 7?', type: 'multiple_choice', options: ['6 × 5 = 30, 6 × 2 = 12, 30 + 12 = 42', '6 × 5 = 30, 6 × 2 = 12, 30 + 12 = 43', '6 × 5 = 30, 6 × 2 = 12, 30 + 12 = 41', '6 × 5 = 30, 6 × 2 = 12, 30 + 12 = 40'], correctIndex: 0 },
+                    { question: 'Which of these shows the correct working for 8 × 9?', type: 'multiple_choice', options: ['8 × 10 = 80, 80 - 8 = 72', '8 × 10 = 80, 80 - 8 = 73', '8 × 10 = 80, 80 - 8 = 71', '8 × 10 = 80, 80 - 8 = 70'], correctIndex: 0 }
+                ]
+            },
+            {
+                id: 'division',
+                title: 'Division',
+                icon: 'fa-divide',
+                color: 'bg-yellow-100 text-yellow-700',
+                questions: [
+                    { question: 'What is 56 ÷ 7?', type: 'numeric', answer: 8 },
+                    { question: 'What is 81 ÷ 9?', type: 'numeric', answer: 9 },
+                    { question: 'What is 144 ÷ 12?', type: 'numeric', answer: 12 },
+                    { question: 'What is 25 ÷ 5?', type: 'numeric', answer: 5 },
+                    { question: 'What is 72 ÷ 8?', type: 'numeric', answer: 9 },
+                    { question: 'What is 54 ÷ 6?', type: 'numeric', answer: 9 },
+                    { question: 'What is 12 ÷ 3?', type: 'numeric', answer: 4 },
+                    { question: 'What is 121 ÷ 11?', type: 'numeric', answer: 11 },
+                    { question: 'What is 45 ÷ 5?', type: 'numeric', answer: 9 },
+                    { question: 'What is 20 ÷ 2?', type: 'numeric', answer: 10 },
+                    { question: 'Which of these shows the correct working for 56 ÷ 7?', type: 'multiple_choice', options: ['7 × 8 = 56, so 56 ÷ 7 = 8', '7 × 8 = 56, so 56 ÷ 7 = 9', '7 × 8 = 56, so 56 ÷ 7 = 7', '7 × 8 = 56, so 56 ÷ 7 = 6'], correctIndex: 0 },
+                    { question: 'Which of these shows the correct working for 81 ÷ 9?', type: 'multiple_choice', options: ['9 × 9 = 81, so 81 ÷ 9 = 9', '9 × 9 = 81, so 81 ÷ 9 = 8', '9 × 9 = 81, so 81 ÷ 9 = 10', '9 × 9 = 81, so 81 ÷ 9 = 11'], correctIndex: 0 }
+                ]
+            },
+            {
+                id: 'fractions',
+                title: 'Fractions',
+                icon: 'fa-percent',
+                color: 'bg-pink-100 text-pink-700',
+                questions: [
+                    { question: 'What is 1/2 + 1/4? (Give answer as a fraction in simplest form, e.g., 3/4)', type: 'text', answer: '3/4', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=pie%20chart%20showing%201%2F2%20and%201%2F4%20combined&w=300&h=200&style=realistic' },
+                    { question: 'What is 2/3 - 1/6? (Give answer as a fraction in simplest form)', type: 'text', answer: '1/2', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=two%20thirds%20minus%20one%20sixth%20visualized&w=300&h=200&style=realistic' },
+                    { question: 'What is 3/5 × 5/3? (Give answer as a fraction in simplest form)', type: 'text', answer: '1', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=multiplication%20of%20fractions%20visualized&w=300&h=200&style=realistic' },
+                    { question: 'What is 4/7 ÷ 2/7? (Give answer as a fraction in simplest form)', type: 'text', answer: '2', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=division%20of%20fractions%20visualized&w=300&h=200&style=realistic' },
+                    { question: 'What is 1/3 + 1/6? (Give answer as a fraction in simplest form)', type: 'text', answer: '1/2', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=pie%20chart%20showing%201%2F3%20and%201%2F6%20combined&w=300&h=200&style=realistic' },
+                    { question: 'What is 5/8 - 1/4? (Give answer as a fraction in simplest form)', type: 'text', answer: '3/8', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=five%20eighths%20minus%20one%20quarter%20visualized&w=300&h=200&style=realistic' },
+                    { question: 'What is 2/5 × 10? (Give answer as a fraction in simplest form)', type: 'text', answer: '4', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=two%20fifths%20multiplied%20by%2010%20visualized&w=300&h=200&style=realistic' },
+                    { question: 'What is 7/9 ÷ 7/9? (Give answer as a fraction in simplest form)', type: 'text', answer: '1', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=seven%20ninths%20divided%20by%20itself%20visualized&w=300&h=200&style=realistic' },
+                    { question: 'What is 1/2 × 1/2? (Give answer as a fraction in simplest form)', type: 'text', answer: '1/4', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=half%20multiplied%20by%20half%20visualized&w=300&h=200&style=realistic' },
+                    { question: 'What is 3/4 - 1/2? (Give answer as a fraction in simplest form)', type: 'text', answer: '1/4', questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=three%20quarters%20minus%20one%20half%20visualized&w=300&h=200&style=realistic' },
+                    { question: 'Which of these shows the correct working for 1/2 + 1/4?', type: 'multiple_choice', options: ['1/2 = 2/4, so 2/4 + 1/4 = 3/4', '1/2 = 2/4, so 2/4 + 1/4 = 2/4', '1/2 = 2/4, so 2/4 + 1/4 = 1/4', '1/2 = 2/4, so 2/4 + 1/4 = 4/4'], correctIndex: 0, questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=pie%20chart%20showing%201%2F2%20and%201%2F4%20combined&w=300&h=200&style=realistic' },
+                    { question: 'Which of these shows the correct working for 2/3 - 1/6?', type: 'multiple_choice', options: ['2/3 = 4/6, so 4/6 - 1/6 = 3/6 = 1/2', '2/3 = 4/6, so 4/6 - 1/6 = 2/6 = 1/3', '2/3 = 4/6, so 4/6 - 1/6 = 5/6', '2/3 = 4/6, so 4/6 - 1/6 = 1/6'], correctIndex: 0, questionImage: 'https://cdn.simulationtheory.ai/gasset/?asset=img&prompt=two%20thirds%20minus%20one%20sixth%20visualized&w=300&h=200&style=realistic' }
+                ]
+            },
+            {
+                id: 'decimals',
+                title: 'Decimals',
+                icon: 'fa-circle',
+                color: 'bg-teal-100 text-teal-700',
+                questions: [
+                    { question: 'What is 0.5 + 0.25?', type: 'numeric', answer: 0.75 },
+                    { question: 'What is 1.2 - 0.8?', type: 'numeric', answer: 0.4 },
+                    { question: 'What is 0.3 × 0.4?', type: 'numeric', answer: 0.12 },
+                    { question: 'What is 0.6 ÷ 0.2?', type: 'numeric', answer: 3 },
+                    { question: 'What is 2.5 + 1.75?', type: 'numeric', answer: 4.25 },
+                    { question: 'What is 10.5 - 4.2?', type: 'numeric', answer: 6.3 },
+                    { question: 'What is 0.1 × 0.1?', type: 'numeric', answer: 0.01 },
+                    { question: 'What is 0.9 ÷ 0.3?', type: 'numeric', answer: 3 },
+                    { question: 'What is 3.14 + 2.86?', type: 'numeric', answer: 6 },
+                    { question: 'What is 7.5 - 2.5?', type: 'numeric', answer: 5 },
+                    { question: 'Which of these shows the correct working for 0.5 + 0.25?', type: 'multiple_choice', options: ['0.50 + 0.25 = 0.75', '0.50 + 0.25 = 0.70', '0.50 + 0.25 = 0.80', '0.50 + 0.25 = 0.65'], correctIndex: 0 },
+                    { question: 'Which of these shows the correct working for 1.2 - 0.8?', type: 'multiple_choice', options: ['1.2 - 0.8 = 0.4', '1.2 - 0.8 = 0.3', '1.2 - 0.8 = 0.5', '1.2 - 0.8 = 0.6'], correctIndex: 0 }
+                ]
+            }
+        ];
+
+        // ===== STATE =====
+        let state = {
+            learnerName: '',
+            score: 0,
+            streak: 0,
+            answeredQuestions: {}, // { topicId: [true/false per question] }
+            completedTopics: [],
+            currentTopic: null,
+            currentQuestionIndex: 0
+        };
+
+        // ===== LOCAL STORAGE =====
+        const STORAGE_KEY = 'mathsChallengeHub';
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    state = { ...state, ...parsed };
+                }
+            } catch (e) {
+                console.warn('Failed to load state from localStorage', e);
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {
+                console.warn('Failed to save state to localStorage', e);
+            }
+        }
+
+        function resetState() {
+            state = {
+                learnerName: state.learnerName, // keep name? maybe clear too
+                score: 0,
+                streak: 0,
+                answeredQuestions: {},
+                completedTopics: [],
+                currentTopic: null,
+                currentQuestionIndex: 0
+            };
+            saveState();
+            renderTopics();
+            updateScoreDisplay();
+            updateStreakDisplay();
+            // Also clear name input? We'll keep name but reset others
+            document.getElementById('learnerName').value = state.learnerName;
+        }
+
+        // ===== DOM ELEMENTS =====
+        const topicGrid = document.getElementById('topicGrid');
+        const topicSelection = document.getElementById('topicSelection');
+        const challengeArea = document.getElementById('challengeArea');
+        const topicTitle = document.getElementById('topicTitle');
+        const questionText = document.getElementById('questionText');
+        const answerArea = document.getElementById('answerArea');
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('nextBtn');
+        const backBtn = document.getElementById('backBtn');
+        const questionCounter = document.getElementById('questionCounter');
+        const completionModal = document.getElementById('completionModal');
+        const completionMessage = document.getElementById('completionMessage');
+        const nextTopicBtn = document.getElementById('nextTopicBtn');
+        const backToTopicsBtn = document.getElementById('backToTopicsBtn');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const streakDisplay = document.getElementById('streakDisplay');
+        const learnerNameInput = document.getElementById('learnerName');
+        const resetBtn = document.getElementById('resetBtn');
+        const questionImageContainer = document.getElementById('questionImageContainer');
+        const questionImage = document.getElementById('questionImage');
+        const answerImageContainer = document.getElementById('answerImageContainer');
+        const answerImage = document.getElementById('answerImage');
+
+        // ===== RENDER TOPICS =====
+        function renderTopics() {
+            topicGrid.innerHTML = '';
+            topics.forEach(topic => {
+                const totalQuestions = topic.questions.length;
+                const answeredCount = (state.answeredQuestions[topic.id] || []).filter(Boolean).length;
+                const isCompleted = state.completedTopics.includes(topic.id);
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl shadow-md cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 ${isCompleted ? 'bg-green-50 border-2 border-green-300' : 'bg-white'}`;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-3xl ${topic.color} p-3 rounded-full"><i class="fas ${topic.icon}" aria-hidden="true"></i></span>
+                        ${isCompleted ? '<span class="text-green-600 text-sm font-semibold"><i class="fas fa-check-circle mr-1" aria-hidden="true"></i>Completed</span>' : ''}
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">${topic.title}</h3>
+                    <p class="text-sm text-gray-600 mt-1">${answeredCount}/${totalQuestions} answered</p>
+                    <div class="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-indigo-500 rounded-full transition-all duration-500" style="width: ${(answeredCount/totalQuestions)*100}%"></div>
+                    </div>
+                `;
+                card.addEventListener('click', () => startTopic(topic.id));
+                topicGrid.appendChild(card);
+            });
+        }
+
+        // ===== START TOPIC =====
+        function startTopic(topicId) {
+            const topic = topics.find(t => t.id === topicId);
+            if (!topic) return;
+            state.currentTopic = topic;
+            state.currentQuestionIndex = 0;
+            // Ensure answeredQuestions array exists
+            if (!state.answeredQuestions[topicId]) {
+                state.answeredQuestions[topicId] = Array(topic.questions.length).fill(false);
+            }
+            topicSelection.classList.add('hidden');
+            challengeArea.classList.remove('hidden');
+            topicTitle.textContent = topic.title;
+            renderQuestion();
+            updateScoreDisplay();
+            updateStreakDisplay();
+        }
+
+        // ===== RENDER QUESTION =====
+        function renderQuestion() {
+            const topic = state.currentTopic;
+            const qIndex = state.currentQuestionIndex;
+            const question = topic.questions[qIndex];
+            questionText.textContent = question.question;
+            questionCounter.textContent = `${qIndex + 1}/${topic.questions.length}`;
+            feedback.textContent = '';
+            nextBtn.classList.add('hidden');
+            answerArea.innerHTML = '';
+
+            // Handle question image
+            if (question.questionImage) {
+                questionImage.src = question.questionImage;
+                questionImageContainer.classList.remove('hidden');
+            } else {
+                questionImageContainer.classList.add('hidden');
+            }
+
+            // Handle answer image (initially hidden)
+            answerImageContainer.classList.add('hidden');
+
+            if (question.type === 'numeric') {
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = 'any';
+                input.className = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors';
+                input.placeholder = 'Enter your answer';
+                input.setAttribute('aria-label', 'Your answer');
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        checkAnswer(input.value);
+                    }
+                });
+                answerArea.appendChild(input);
+                input.focus();
+            } else if (question.type === 'text') {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors';
+                input.placeholder = 'Enter your answer (e.g., 3/4)';
+                input.setAttribute('aria-label', 'Your answer');
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        checkAnswer(input.value);
+                    }
+                });
+                answerArea.appendChild(input);
+                input.focus();
+            } else if (question.type === 'multiple_choice') {
+                // Create buttons for each option
+                question.options.forEach((option, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'w-full text-left px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-300 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500';
+                    btn.textContent = option;
+                    btn.setAttribute('data-index', idx);
+                    btn.addEventListener('click', () => checkAnswer(idx));
+                    answerArea.appendChild(btn);
+                });
+            }
+        }
+
+        // ===== CHECK ANSWER =====
+        function checkAnswer(userAnswer) {
+            const topic = state.currentTopic;
+            const qIndex = state.currentQuestionIndex;
+            const question = topic.questions[qIndex];
+            let isCorrect = false;
+
+            if (question.type === 'numeric') {
+                const num = parseFloat(userAnswer);
+                if (!isNaN(num)) {
+                    isCorrect = Math.abs(num - question.answer) < 0.001;
+                }
+            } else if (question.type === 'text') {
+                // For text answers, normalize (lowercase, trim, remove spaces)
+                const normalize = (str) => str.toLowerCase().replace(/\s+/g, '').replace(/\/+/g, '/');
+                isCorrect = normalize(userAnswer) === normalize(question.answer);
+            } else if (question.type === 'multiple_choice') {
+                isCorrect = userAnswer === question.correctIndex;
+            }
+
+            // Update state
+            state.answeredQuestions[topic.id][qIndex] = true;
+            if (isCorrect) {
+                state.score += 10;
+                state.streak += 1;
+                feedback.textContent = '✅ Correct! Well done!';
+                feedback.className = 'mt-4 text-lg font-medium text-green-600';
+            } else {
+                state.streak = 0;
+                let correctAnswerText = '';
+                if (question.type === 'multiple_choice') {
+                    correctAnswerText = question.options[question.correctIndex];
+                } else {
+                    correctAnswerText = question.answer;
+                }
+                feedback.textContent = `❌ Not quite. The correct answer is ${correctAnswerText}.`;
+                feedback.className = 'mt-4 text-lg font-medium text-red-500';
+            }
+
+            // Show answer image if available
+            if (question.answerImage) {
+                answerImage.src = question.answerImage;
+                answerImageContainer.classList.remove('hidden');
+            }
+
+            // Check if topic completed
+            const allAnswered = state.answeredQuestions[topic.id].every(Boolean);
+            if (allAnswered && !state.completedTopics.includes(topic.id)) {
+                state.completedTopics.push(topic.id);
+                state.score += 50; // bonus
+                // Show completion modal after a short delay
+                setTimeout(() => {
+                    showCompletionModal();
+                }, 500);
+            }
+
+            // Update UI
+            updateScoreDisplay();
+            updateStreakDisplay();
+            saveState();
+
+            // Disable input/buttons and show next button
+            const inputs = answerArea.querySelectorAll('input');
+            inputs.forEach(inp => inp.disabled = true);
+            const buttons = answerArea.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+            nextBtn.classList.remove('hidden');
+
+            // If last question, change button text
+            if (qIndex === topic.questions.length - 1) {
+                nextBtn.innerHTML = 'Finish Topic <i class="fas fa-check ml-2" aria-hidden="true"></i>';
+            } else {
+                nextBtn.innerHTML = 'Next Question <i class="fas fa-arrow-right ml-2" aria-hidden="true"></i>';
+            }
+        }
+
+        // ===== NEXT QUESTION =====
+        function nextQuestion() {
+            const topic = state.currentTopic;
+            if (state.currentQuestionIndex < topic.questions.length - 1) {
+                state.currentQuestionIndex++;
+                renderQuestion();
+            } else {
+                // Topic finished
+                backToTopics();
+            }
+        }
+
+        // ===== BACK TO TOPICS =====
+        function backToTopics() {
+            state.currentTopic = null;
+            state.currentQuestionIndex = 0;
+            challengeArea.classList.add('hidden');
+            topicSelection.classList.remove('hidden');
+            renderTopics();
+        }
+
+        // ===== COMPLETION MODAL =====
+        function showCompletionModal() {
+            const topic = state.currentTopic;
+            const totalQuestions = topic.questions.length;
+            const correctCount = state.answeredQuestions[topic.id].filter(Boolean).length;
+            completionMessage.textContent = `You answered ${correctCount} out of ${totalQuestions} correctly! You earned a 50-point bonus.`;
+            completionModal.classList.remove('hidden');
+            completionModal.classList.add('flex');
+        }
+
+        function hideCompletionModal() {
+            completionModal.classList.add('hidden');
+            completionModal.classList.remove('flex');
+        }
+
+        // ===== UPDATE DISPLAYS =====
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = state.score;
+        }
+
+        function updateStreakDisplay() {
+            streakDisplay.textContent = state.streak;
+        }
+
+        // ===== SAVE TO CSV (if available) =====
+        function saveProgress() {
+            if (typeof window.save_data_to_csv === 'function') {
+                const data = topics.map(topic => {
+                    const answered = state.answeredQuestions[topic.id] || [];
+                    const correct = answered.filter(Boolean).length;
+                    return {
+                        learner: state.learnerName,
+                        topic: topic.title,
+                        questionsAnswered: answered.length,
+                        correctAnswers: correct,
+                        completed: state.completedTopics.includes(topic.id)
+                    };
+                });
+                window.save_data_to_csv('maths_progress.csv', data);
+            }
+        }
+
+        // ===== EVENT LISTENERS =====
+        nextBtn.addEventListener('click', nextQuestion);
+        backBtn.addEventListener('click', backToTopics);
+        nextTopicBtn.addEventListener('click', () => {
+            hideCompletionModal();
+            // Find next incomplete topic
+            const nextTopic = topics.find(t => !state.completedTopics.includes(t.id));
+            if (nextTopic) {
+                startTopic(nextTopic.id);
+            } else {
+                backToTopics();
+            }
+        });
+        backToTopicsBtn.addEventListener('click', () => {
+            hideCompletionModal();
+            backToTopics();
+        });
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset all progress?')) {
+                resetState();
+            }
+        });
+        learnerNameInput.addEventListener('input', (e) => {
+            state.learnerName = e.target.value;
+            saveState();
+        });
+
+        // ===== INIT =====
+        function init() {
+            loadState();
+            document.getElementById('learnerName').value = state.learnerName;
+            renderTopics();
+            updateScoreDisplay();
+            updateStreakDisplay();
+            // Save initial state
+            saveState();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
+        
